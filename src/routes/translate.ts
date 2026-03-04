@@ -6,6 +6,26 @@ export const translateRouter = Router();
 // 从环境变量获取配置
 const MAX_CONTENT_LENGTH = parseInt(process.env.MAX_CONTENT_LENGTH || '2000');
 
+/**
+ * 所有有效的翻译方向
+ * 注意：添加新的翻译方向时，必须同步更新此数组和 TranslationDirection 类型定义
+ */
+const validDirections: TranslationDirection[] = [
+  'pm-to-dev',
+  'dev-to-pm',
+  'pm-to-operation',
+  'dev-to-operation',
+  'operation-to-pm',
+  'operation-to-dev'
+];
+
+/**
+ * 类型守卫函数：验证翻译方向是否有效
+ */
+function isValidTranslationDirection(value: any): value is TranslationDirection {
+  return validDirections.includes(value);
+}
+
 // 初始化翻译服务（不再需要传入 aiProvider，从 LLMProviderManager 获取）
 const translator = new TranslatorService();
 
@@ -18,9 +38,9 @@ translateRouter.post('/translate', async (req: Request, res: Response) => {
     const { direction, content } = req.body;
 
     // 请求参数验证：翻译方向
-    if (!direction || (direction !== 'pm-to-dev' && direction !== 'dev-to-pm')) {
+    if (!direction || !isValidTranslationDirection(direction)) {
       return res.status(400).json({
-        error: '无效的翻译方向，请选择 pm-to-dev 或 dev-to-pm',
+        error: `无效的翻译方向，请选择以下之一：${validDirections.join(', ')}`,
       });
     }
 
