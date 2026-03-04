@@ -1,17 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { TranslatorService, TranslationDirection } from '../services/translator';
-import { OpenAIProvider } from '../services/openai-provider';
 
 export const translateRouter = Router();
 
 // 从环境变量获取配置
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
 const MAX_CONTENT_LENGTH = parseInt(process.env.MAX_CONTENT_LENGTH || '2000');
 
-// 初始化 AI 提供商和翻译服务
-const aiProvider = new OpenAIProvider(OPENAI_API_KEY, OPENAI_MODEL);
-const translator = new TranslatorService(aiProvider);
+// 初始化翻译服务（不再需要传入 aiProvider，从 LLMProviderManager 获取）
+const translator = new TranslatorService();
 
 /**
  * POST /api/translate
